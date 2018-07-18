@@ -53,7 +53,7 @@ public class PiMessage {
     /**
      * The data packet's default ID
      */
-    public static final byte DEFAULT_ID = 0x00000000;
+    public static final String DEFAULT_ID = "00000000";
 
     private static final int LENGTH_ID = 4;
 
@@ -65,6 +65,8 @@ public class PiMessage {
 
     private static final int LENGTH_PAYLOAD_LENGTH = 2;
 
+    private static final int LENGTH_NON_PAYLOAD = LENGTH_PREFIX + LENGTH_VERSION +
+            LENGTH_ID + LENGTH_SERIAL_NUMBER + LENGTH_PAYLOAD_LENGTH;
 
     private PiMessage(String id, byte prefix, byte version, long serialNumber, byte[] payload) {
         this.id = id;
@@ -168,7 +170,7 @@ public class PiMessage {
     }
 
     public int length() {
-        return 12 + payloadLength();
+        return LENGTH_NON_PAYLOAD + payloadLength();
     }
 
     public int payloadLength() {
@@ -180,7 +182,7 @@ public class PiMessage {
     }
 
     public byte[] toByteArray() throws Exception {
-        byte[] bytes = new byte[LENGTH_PREFIX + LENGTH_VERSION + LENGTH_ID + LENGTH_SERIAL_NUMBER + LENGTH_PAYLOAD_LENGTH + payload.length];
+        byte[] bytes = new byte[LENGTH_NON_PAYLOAD + payload.length];
         bytes[0] = prefix;
         bytes[1] = version;
 
