@@ -93,10 +93,10 @@ public class PiMessage {
         }
 
         public Builder(String id, byte prefix, byte version, long serialNumber) {
-            id(id);
+            this.id(id);
             this.prefix = prefix;
             this.version = version;
-            serialNumber(serialNumber);
+            this.serialNumber(serialNumber);
 
             this.payload = new byte[0];
         }
@@ -144,8 +144,26 @@ public class PiMessage {
         }
 
         public static Builder fromBytes(byte[] bytes) {
-            // TODO
-            return new Builder("", 1);
+            Objects.requireNonNull(bytes);
+            if (bytes.length < LENGTH_NON_PAYLOAD) {
+                throw new IllegalArgumentException("Pi message must be no less than " + LENGTH_NON_PAYLOAD);
+            }
+
+            byte prefix = bytes[0];
+            byte version = bytes[1];
+
+            byte[] idBytes = new byte[4];
+            System.arraycopy(bytes, 2, idBytes, 0, LENGTH_ID);
+            String id = new String(Hex.encodeHex(idBytes, false));
+
+            int serialNumber = ByteUtils.getInt(bytes, 6);
+
+            int payloadLength = bytes.length - LENGTH_NON_PAYLOAD;
+            byte[] payload = new byte[payloadLength];
+            System.arraycopy(bytes, 12, payload, 0, payloadLength);
+
+            return new Builder(id, prefix, version, serialNumber)
+                    .payload(payload);
         }
 
         public PiMessage build() {
